@@ -5,14 +5,9 @@ import Checkbox from "@mui/material/Checkbox";
 import FormControlLabel from "@mui/material/FormControlLabel";
 
 
-// Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyBJO9U13crpB0N0_Ua_3oXcj2YdoghA1yc",
   authDomain: "react-demo-c51db.firebaseapp.com",
@@ -29,11 +24,20 @@ const analytics = getAnalytics(app);
 
 export default function App() {
   const [listening, setListening] = useState(true);
-  const [pressedKeys, setPressedKeys] = useState("");
+  const [scannedCodes, setScannedCodes] = useState([]);
+  const currentCodeRef = useRef("");
+
 
   const keypressHandler = (e) => {
     console.log("pressed:", e.keyCode);
-    setPressedKeys((prev) => prev + (e.keyCode === 13 ? "\n" : e.key));
+
+    if (e.keyCode === 13) {
+      const scannedValue = currentCodeRef.current;
+      setScannedCodes((prev) => [...prev, scannedValue]); 
+      currentCodeRef.current = ""; 
+    } else {
+      currentCodeRef.current += e.key;
+    }
   };
 
   const keydownHandler = (e) => console.log("down:", e.keyCode);
@@ -72,12 +76,17 @@ export default function App() {
         label="Listen for KeyPress?"
       />
       <p className="text-sm text-gray-500">Reload to clear page</p>
-      <h3 className="text-lg font-semibold">Output</h3>
-      <div
-        className="wordwrap whitespace-pre-wrap p-4 border rounded-2xl shadow-md min-h-[100px]"
-        style={{ wordWrap: "break-word" }}
-      >
-        {pressedKeys}
+      <h3 className="text-lg font-semibold">Scanned Codes</h3>
+      <div className="wordwrap whitespace-pre-wrap p-4 border rounded-2xl shadow-md min-h-[100px]">
+        {scannedCodes.length > 0 ? (
+          scannedCodes.map((code, index) => (
+            <div key={index} className="py-1 border-b last:border-b-0">
+              {code}
+            </div>
+          ))
+        ) : (
+          <p className="text-gray-400">No codes scanned yet.</p>
+        )}
       </div>
     </div>
   );
@@ -86,68 +95,3 @@ export default function App() {
 
 
 
-
-// const [scannedCode, setScannedCode] = useState('');
-//   const [isListening, setIsListening] = useState(false);
-//   const inputBuffer = useRef('');
-
-//   useEffect(() => {
-//     if (!isListening) return;
-
-//     const handleKeyPress = (e) => {
-//       if (e.key === 'Enter') {
-//         setScannedCode(inputBuffer.current); // Set scanned code when Enter is pressed
-//         inputBuffer.current = '';            // Clear buffer
-//       } else {
-//         inputBuffer.current += e.key;        // Accumulate characters
-//       }
-//     };
-
-//     window.addEventListener('keypress', handleKeyPress);
-
-//     return () => window.removeEventListener('keypress', handleKeyPress); // Cleanup
-//   }, [isListening]);
-
-//   const startListening = () => {
-//     setScannedCode('');
-//     setIsListening(true);
-//   };
-
-//   return (
-//     <div>
-//       <Grid2 container spacing={1}>
-//         <Grid2
-//           size={6}
-//           sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-//         >
-//           <Button
-//             variant="contained"
-//             onClick={startListening}
-//             sx={{
-//               display: 'flex',
-//               flexDirection: 'column',
-//               alignItems: 'center',
-//               justifyContent: 'center',
-//               padding: 2,
-//               textTransform: 'none',
-//               backgroundColor: '#D9D9D9',
-//               color: 'black',
-//               '&:hover': { backgroundColor: '#888585' },
-//             }}
-//           >
-//             <img
-//               src={scanicon}
-//               alt="Scan Icon"
-//               style={{ width: '50px', height: '50px', marginBottom: '8px' }}
-//             />
-//             Scan batch
-//           </Button>
-//         </Grid2>
-
-//         <Grid2 size={12} sx={{ textAlign: 'center', marginTop: 4 }}>
-//           {isListening && <p>Scanning... Please scan a barcode.</p>}
-//           {scannedCode && <p><strong>Scanned Code:</strong> {scannedCode}</p>}
-//         </Grid2>
-//       </Grid2>
-//     </div>
-//   );
